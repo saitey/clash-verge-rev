@@ -1,0 +1,28 @@
+name: Sync code and releases from upstream
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Fetch upstream code and merge changes
+        run: |
+          git remote add upstream https://github.com/clash-verge-rev/clash-verge-rev.git
+          git fetch upstream
+          git merge upstream/main
+          git add .
+          git commit -m "Update code and releases from upstream"
+
+      - name: Update releases
+        run: |
+          npx @actions/github-script@v6 -b main -e GITHUB_TOKEN -f .github/workflows/update-releases.js
+
+      - name: Push changes
+        run: git push origin main
